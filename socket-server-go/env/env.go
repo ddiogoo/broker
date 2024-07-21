@@ -11,8 +11,7 @@ var (
 	ErrLoadingDotEnv = errors.New("error on loading .env")
 )
 
-// Method responsible for loading environment variables according to a configuration file.
-// This method will only be called once.
+// Config loads the environment variables from the .env file.
 func Config() error {
 	err := godotenv.Load("../.env")
 	if err != nil {
