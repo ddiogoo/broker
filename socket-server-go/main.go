@@ -5,7 +5,7 @@ import (
 	"github.com/ddiogoo/broker/tree/master/socket-server-go/server"
 )
 
-// Method responsible for initializing our application.
+// main is the entry point of the application.
 func main() {
 	env.Config()
 	err := server.Start()
