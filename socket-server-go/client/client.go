@@ -37,9 +37,10 @@ var clientUpgrader = websocket.Upgrader{
 
 // Client represents a single WebSocket connection.
 type Client struct {
-	hub  *Hub
-	conn *websocket.Conn
-	send chan []byte
+	hub      *Hub
+	conn     *websocket.Conn
+	send     chan []byte
+	username string
 }
 
 // readPump pumps messages from the WebSocket connection to the hub.
@@ -111,7 +112,15 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	c := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	username := r.URL.Query().Get("username")
+	if username == "" {
+		username = "anonymous"
+	}
+	c := &Client{
+		hub:      hub,
+		conn:     conn,
+		send:     make(chan []byte, 256),
+		username: username}
 	c.hub.register <- c
 	go c.writePump()
 	go c.readPump()
