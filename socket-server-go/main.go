@@ -9,7 +9,7 @@ import (
 // main is the entry point of the application.
 func main() {
 	env.Config()
-	_, err := mq.ConnectToNats()
+	_, err := mq.Connect()
 	if err != nil {
 		panic(err.Error())
 	}
