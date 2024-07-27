@@ -2,7 +2,6 @@ package mq
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/nats-io/nats.go"
@@ -15,22 +14,23 @@ var (
 
 // Nats struct has Conn property to manager the nats.
 type Nats struct {
-	Conn *nats.Conn
+	conn *nats.Conn
 }
 
 // Publish send a msg to a subj.
 func (n *Nats) Publish(subj string, msg string) {
-	err := n.Conn.Publish(subj, []byte(msg))
+	err := n.conn.Publish(subj, []byte(msg))
 	if err != nil {
 		log.Println("error on publish a message on " + subj)
 	}
 }
 
 // Subscriber receive messages from subj and print on terminal.
-func (n *Nats) Subscribe(subj string) {
-	n.Conn.Subscribe(subj, func(m *nats.Msg) {
-		fmt.Printf("Received a message: %s\n", string(m.Data))
+func (n *Nats) Subscribe(subj string, ch chan (string)) error {
+	_, err := n.conn.Subscribe(subj, func(m *nats.Msg) {
+		ch <- string(m.Data)
 	})
+	return err
 }
 
 // Connect try to connect to a Nats Server.
@@ -39,5 +39,5 @@ func Connect() (*Nats, error) {
 	if err != nil {
 		return nil, errConnectToNats
 	}
-	return &Nats{Conn: nc}, nil
+	return &Nats{conn: nc}, nil
 }
