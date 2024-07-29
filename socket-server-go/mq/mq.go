@@ -2,7 +2,6 @@ package mq
 
 import (
 	"errors"
-	"log"
 
 	"github.com/nats-io/nats.go"
 )
@@ -17,12 +16,18 @@ type Nats struct {
 	conn *nats.Conn
 }
 
+// Close closes the connection.
+func (n *Nats) Close() {
+	n.conn.Close()
+}
+
 // Publish send a msg to a subj.
-func (n *Nats) Publish(subj string, msg string) {
+func (n *Nats) Publish(subj string, msg string) error {
 	err := n.conn.Publish(subj, []byte(msg))
 	if err != nil {
-		log.Println("error on publish a message on " + subj)
+		return err
 	}
+	return nil
 }
 
 // Subscriber receive messages from subj and print on terminal.
