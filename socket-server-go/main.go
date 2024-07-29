@@ -15,6 +15,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+	defer n.Close()
 
 	ch := make(chan string)
 	subscription := make(chan struct{})
@@ -32,7 +33,6 @@ func main() {
 			log.Println("Message received: " + v)
 		}
 	}()
-	n.Publish("hello", "DIOGO!")
 
 	err = server.Start()
 	if err != nil {
