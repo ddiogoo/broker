@@ -2,6 +2,7 @@ package mq
 
 import (
 	"errors"
+	"os"
 
 	"github.com/nats-io/nats.go"
 )
@@ -40,7 +41,13 @@ func (n *Nats) Subscribe(subj string, ch chan (string)) error {
 
 // Connect try to connect to a Nats Server.
 func Connect() (*Nats, error) {
-	nc, err := nats.Connect(nats.DefaultURL)
+	var conn string
+	if os.Getenv("RUN_MODE") == "debug" {
+		conn = nats.DefaultURL
+	} else {
+		conn = os.Getenv("NATS_RELEASE_URI")
+	}
+	nc, err := nats.Connect(os.Getenv(conn))
 	if err != nil {
 		return nil, errConnectToNats
 	}
