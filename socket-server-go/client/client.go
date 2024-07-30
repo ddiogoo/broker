@@ -43,8 +43,8 @@ type Client struct {
 	username string
 }
 
-// readPump pumps messages from the WebSocket connection to the hub.
-func (c *Client) readPump() {
+// fromClientConnectionToHub pumps messages from the WebSocket connection to the hub.
+func (c *Client) fromClientConnectionToHub() {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
@@ -68,8 +68,8 @@ func (c *Client) readPump() {
 	}
 }
 
-// writePump pumps messages from the hub to the WebSocket connection.
-func (c *Client) writePump() {
+// fromHubToClientConnection pumps messages from the hub to the WebSocket connection.
+func (c *Client) fromHubToClientConnection() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -122,6 +122,6 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		send:     make(chan []byte, 256),
 		username: username}
 	c.hub.register <- c
-	go c.writePump()
-	go c.readPump()
+	go c.fromHubToClientConnection()
+	go c.fromClientConnectionToHub()
 }
