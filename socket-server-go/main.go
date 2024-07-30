@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/ddiogoo/broker/tree/master/socket-server-go/env"
 	"github.com/ddiogoo/broker/tree/master/socket-server-go/mq"
 	"github.com/ddiogoo/broker/tree/master/socket-server-go/server"
@@ -16,25 +14,7 @@ func main() {
 		panic(err.Error())
 	}
 	defer n.Close()
-
-	ch := make(chan string)
-	subscription := make(chan struct{})
-	go func() {
-		err := n.Subscribe("hello", ch)
-		if err != nil {
-			log.Fatalln("error on subscription hello")
-		}
-		close(subscription)
-	}()
-	<-subscription
-
-	go func() {
-		for v := range ch {
-			log.Println("Message received: " + v)
-		}
-	}()
-
-	err = server.Start()
+	err = server.Start(n)
 	if err != nil {
 		panic(err.Error())
 	}
