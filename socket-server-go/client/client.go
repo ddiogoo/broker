@@ -1,11 +1,11 @@
 package client
 
 import (
-	"bytes"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/ddiogoo/broker/tree/master/socket-server-go/mq"
 	"github.com/gorilla/websocket"
 )
 
@@ -18,14 +18,10 @@ const (
 
 	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
-
-	// Maximum message size allowed from peer.
-	maxMessageSize = 512
 )
 
 var (
 	newline = []byte{'\n'}
-	space   = []byte{' '}
 )
 
 // Upgrader is used to upgrade an HTTP connection to a WebSocket connection.
@@ -43,62 +39,45 @@ type Client struct {
 	username string
 }
 
-// fromClientConnectionToHub pumps messages from the WebSocket connection to the hub.
-func (c *Client) fromClientConnectionToHub() {
-	defer func() {
-		c.hub.unregister <- c
-		c.conn.Close()
-	}()
-	c.conn.SetReadLimit(maxMessageSize)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(appData string) error {
-		c.conn.SetReadDeadline(time.Now().Add(pongWait))
-		return nil
-	})
-	for {
-		_, message, err := c.conn.ReadMessage()
-		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
-			}
-			break
-		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broascast <- message
-	}
-}
-
 // fromHubToClientConnection pumps messages from the hub to the WebSocket connection.
-func (c *Client) fromHubToClientConnection() {
+func (c *Client) fromHubToClientConnection(ch chan string) {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
 		c.conn.Close()
 	}()
+
 	for {
 		select {
-		case message, ok := <-c.send:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+		case message, ok := <-ch:
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				log.Println("channel closed")
 				return
 			}
+			log.Println("Received message:", message)
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
+				log.Println("NextWriter error:", err)
 				return
 			}
-			w.Write(message)
+			if _, err := w.Write([]byte(message)); err != nil {
+				log.Println("Write error:", err)
+				return
+			}
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)
 				w.Write(<-c.send)
 			}
 			if err := w.Close(); err != nil {
+				log.Println("Close writer error:", err)
 				return
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				log.Println("Ping error:", err)
 				return
 			}
 		}
@@ -106,10 +85,10 @@ func (c *Client) fromHubToClientConnection() {
 }
 
 // ServeWs handles WebSocket requests from the peer.
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func ServeWs(n *mq.Nats, hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := clientUpgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Println("Upgrade error:", err)
 		return
 	}
 	username := r.URL.Query().Get("username")
@@ -122,6 +101,20 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		send:     make(chan []byte, 256),
 		username: username}
 	c.hub.register <- c
-	go c.fromHubToClientConnection()
-	go c.fromClientConnectionToHub()
+	log.Println("Client registered:", username)
+
+	ch := make(chan string)
+	subscription := make(chan struct{})
+
+	go func() {
+		err := n.Subscribe("hello", ch)
+		if err != nil {
+			log.Fatalln("Error on subscription to 'hello':", err)
+		}
+		close(subscription)
+	}()
+	<-subscription
+	log.Println("Subscribed to 'hello'")
+
+	go c.fromHubToClientConnection(ch)
 }
