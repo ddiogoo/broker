@@ -18,6 +18,20 @@ Application is divided as follows:
 - `traffic-exchange`: Service responsible for buy or sell a specific asset made available by a broker.
 - `transaction-service`: Service responsible for carrying out transactions through a purchase order and another sales order.
 
+## Socket Server
+
+### Description
+
+This service is responsible for launching a WebSocket server that communicates with NATS.
+
+### Communication flow
+
+When a client makes a connection to the WebSocket server, it subscribes to a subject (queue) that will read data from it, the read data will be sent to the client in the Frontend.
+
+![Fluxo de comunicação Socket Server](./.github/socket-server.png)
+
+Note that communication goes from NATS to the server and from the server to the client, NATS will consume the data that will follow this flow from other services that will be the Producer, such as `traffic-exchange` and `transaction-service`.
+
 ## Reference
 
 - [Golang](https://go.dev/)
