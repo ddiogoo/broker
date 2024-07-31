@@ -18,6 +18,7 @@ Application is divided as follows:
 - `traffic-exchange`: Service responsible for buy or sell a specific asset made available by a broker.
 - `transaction-service`: Service responsible for carrying out transactions through a purchase order and another sales order.
 
-## Technologies used
+## Reference
 
-Details of the technologies used will be included in the README of each project created.
+- [Golang](https://go.dev/)
+- [NATS.io](https://nats.io/)
