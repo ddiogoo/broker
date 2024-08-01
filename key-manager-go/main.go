@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/ddiogoo/broker/tree/master/key-manager-go/ctx"
 	"github.com/ddiogoo/broker/tree/master/key-manager-go/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -12,8 +13,18 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		panic(err.Error())
 	}
+	keyManagerDb, err := ctx.NewKeyManagerDatabase()
+	if err != nil {
+		panic(err.Error())
+	}
+	defer keyManagerDb.Close()
+	err = keyManagerDb.Ping()
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Successfully connection with PostgreSQL.")
 	gin.SetMode(func() string {
 		if os.Getenv("GIN_RUN_MODE") == "debug" {
 			return gin.DebugMode
@@ -21,6 +32,6 @@ func main() {
 		return gin.ReleaseMode
 	}())
 	r := gin.Default()
-	routes.ConfigureRoutes(r)
+	routes.ConfigureRoutes(r, keyManagerDb)
 	r.Run()
 }
