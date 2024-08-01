@@ -1,4 +1,4 @@
-![Golang](https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white) ![Nats.io](https://img.shields.io/badge/NATS.io-27AAE1.svg?logo=natsdotio&logoColor=white)
+![Golang](https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white) ![Gin](https://img.shields.io/badge/Gin-008ECF.svg?logo=Gin&logoColor=white) ![Nats.io](https://img.shields.io/badge/NATS.io-27AAE1.svg?logo=natsdotio&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1.svg?logo=PostgreSQL&logoColor=white)
 
 # broker
 
@@ -35,4 +35,6 @@ Note that communication goes from NATS to the server and from the server to the 
 ## Reference
 
 - [Golang](https://go.dev/)
+- [Gin](https://github.com/gin-gonic/gin)
 - [NATS.io](https://nats.io/)
+- [PostgreSQL](https://www.postgresql.org/)
