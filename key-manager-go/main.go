@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/ddiogoo/broker/tree/master/key-manager-go/test"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -22,9 +24,17 @@ func main() {
 	}())
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
+		var test test.TestDto
+		if err := c.BindJSON(&test); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "invalid body",
+			})
+			return
+		}
 		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+			"message": "body is ok",
 		})
+		fmt.Println(test.Email)
 	})
 	r.Run()
 }
