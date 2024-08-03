@@ -1,4 +1,4 @@
-package ctx
+package database
 
 import (
 	"database/sql"
