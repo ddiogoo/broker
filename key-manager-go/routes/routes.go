@@ -11,12 +11,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ConfigureRoutes(r *gin.Engine, db *database.KeyManagerDatabase) {
+func ConfigureRoutes(r *gin.Engine, db *database.DatabaseManager) {
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
+
 	r.POST("", func(c *gin.Context) {
 		var keyDto dto.KeyDto
 		if err := c.BindJSON(&keyDto); err != nil {
