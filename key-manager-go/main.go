@@ -3,8 +3,11 @@ package main
 import (
 	"log"
 	"os"
+	"reflect"
 
-	"github.com/ddiogoo/broker/tree/master/key-manager-go/ctx"
+	"github.com/ddiogoo/broker/tree/master/key-manager-go/builder"
+	"github.com/ddiogoo/broker/tree/master/key-manager-go/database"
+	"github.com/ddiogoo/broker/tree/master/key-manager-go/model"
 	"github.com/ddiogoo/broker/tree/master/key-manager-go/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -15,7 +18,8 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	keyManagerDb, err := ctx.NewKeyManagerDatabase()
+	test()
+	keyManagerDb, err := database.NewKeyManagerDatabase()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -34,4 +38,13 @@ func main() {
 	r := gin.Default()
 	routes.ConfigureRoutes(r, keyManagerDb)
 	r.Run()
+}
+
+func test() {
+	typs := []reflect.Type{}
+	keyType := reflect.TypeOf(&model.Key{}).Elem()
+	typs = append(typs, keyType)
+	manager := builder.NewDatabaseQueryBuilder(typs)
+	manager.ChargeTypes()
+	manager.CreateAllTable()
 }
