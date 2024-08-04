@@ -43,6 +43,13 @@ func (k *DatabaseManager) Table() error {
 	return nil
 }
 
+// Insert a content on database.
+func (k *DatabaseManager) Insert(m interface{}) error {
+	result := k.dbBuilder.BuildInsert(m)
+	_, err := k.db.Query(result)
+	return err
+}
+
 // NewDatabaseManager creates a new instance of DatabaseManager.
 func NewDatabaseManager(types []reflect.Type) (*DatabaseManager, error) {
 	connStr := func() string {
