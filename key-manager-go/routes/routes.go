@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ddiogoo/broker/tree/master/key-manager-go/database"
 	"github.com/ddiogoo/broker/tree/master/key-manager-go/dto"
 	"github.com/ddiogoo/broker/tree/master/key-manager-go/generator"
 	"github.com/ddiogoo/broker/tree/master/key-manager-go/model"
 	"github.com/gin-gonic/gin"
 )
 
-func ConfigureRoutes(r *gin.Engine, db *database.DatabaseManager) {
+func ConfigureRoutes(r *gin.Engine) {
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
