@@ -15,9 +15,9 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-
-	reflectList := util.BuildListOfReflectType()
-	db, err := database.NewDatabaseManager(reflectList)
+	db, err := database.NewDatabaseManager(
+		util.BuildListOfReflectType(),
+	)
 	if err != nil {
 		panic(err.Error())
 	}
