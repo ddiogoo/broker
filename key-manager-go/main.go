@@ -5,12 +5,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/ddiogoo/broker/tree/master/key-manager-go/mongodb"
 	"github.com/ddiogoo/broker/tree/master/key-manager-go/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func main() {
@@ -22,21 +20,16 @@ func main() {
 	// MongoDB
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(func() string {
-		if os.Getenv("GIN_RUN_MODE") == "debug" {
-			return os.Getenv("CONN_STRING_MONGODB_DEBUG")
-		}
-		return os.Getenv("CONN_STRING_MONGODB_RELEASE")
-	}()))
+	client, err := mongodb.NewMongoClient(ctx)
 	if err != nil {
 		panic(err)
 	}
 	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
+		if err := client.Disconnect(); err != nil {
 			panic(err)
 		}
 	}()
-	err = client.Ping(ctx, readpref.Primary())
+	err = client.Ping()
 	if err != nil {
 		panic(err)
 	}
