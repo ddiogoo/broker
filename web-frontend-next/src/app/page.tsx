@@ -1,4 +1,6 @@
-import { ChangeEvent, useState } from "react";
+"use client";
+
+import { useState } from "react";
 import useWebSocket from "react-use-websocket";
 
 export default function Home() {
