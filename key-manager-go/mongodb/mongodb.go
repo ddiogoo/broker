@@ -5,6 +5,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/ddiogoo/broker/tree/master/key-manager-go/dto"
+	"github.com/ddiogoo/broker/tree/master/key-manager-go/model"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -13,6 +16,16 @@ import (
 type MongoClient struct {
 	client *mongo.Client
 	ctx    context.Context
+}
+
+// FindOne
+func (m *MongoClient) FindOne(c dto.CheckPermissionDto) (model.Key, error) {
+	collection := m.client.Database("key_manager").Collection("keys")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	var result model.Key
+	err := collection.FindOne(ctx, bson.M{"apiKey": c.ApiKey}).Decode(&result)
+	return result, err
 }
 
 func (m *MongoClient) InsertOne(i interface{}) (interface{}, error) {
