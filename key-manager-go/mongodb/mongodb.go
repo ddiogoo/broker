@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"os"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -12,6 +13,17 @@ import (
 type MongoClient struct {
 	client *mongo.Client
 	ctx    context.Context
+}
+
+func (m *MongoClient) InsertOne(i interface{}) (interface{}, error) {
+	collection := m.client.Database("key_manager").Collection("keys")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	res, err := collection.InsertOne(ctx, i)
+	if err != nil {
+		return nil, err
+	}
+	return res.InsertedID, nil
 }
 
 // Disconnect closes the socket connection.

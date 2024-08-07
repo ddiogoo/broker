@@ -41,6 +41,6 @@ func main() {
 		return gin.ReleaseMode
 	}())
 	r := gin.Default()
-	routes.ConfigureRoutes(r)
+	routes.ConfigureRoutes(r, client)
 	r.Run()
 }
