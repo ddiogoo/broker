@@ -18,7 +18,7 @@ type MongoClient struct {
 	ctx    context.Context
 }
 
-// FindOne
+// FindOne gets a document according to CheckPermissionDto model.
 func (m *MongoClient) FindOne(c dto.CheckPermissionDto) (model.Key, error) {
 	collection := m.client.Database("key_manager").Collection("keys")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -28,6 +28,7 @@ func (m *MongoClient) FindOne(c dto.CheckPermissionDto) (model.Key, error) {
 	return result, err
 }
 
+// InsertOne inserts an item on key_manager database.
 func (m *MongoClient) InsertOne(i interface{}) (interface{}, error) {
 	collection := m.client.Database("key_manager").Collection("keys")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
