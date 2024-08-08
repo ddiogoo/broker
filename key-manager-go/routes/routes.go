@@ -27,7 +27,8 @@ func ConfigureRoutes(r *gin.Engine, client *mongodb.MongoClient) {
 			})
 			return
 		}
-		key := model.NewKey(keyDto.Email, generator.GenerateApiKey(), "/ping")
+		routes := make([]model.RoutePermission, 0)
+		key := model.NewKey(keyDto.Email, generator.GenerateApiKey(), routes)
 		res, err := client.InsertOne(key)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -64,14 +65,16 @@ func ConfigureRoutes(r *gin.Engine, client *mongodb.MongoClient) {
 			return
 		}
 
-		if strings.Contains(result.Route, checkPermissionDto.Route) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "permission granted",
-			})
-		} else {
-			c.JSON(http.StatusForbidden, gin.H{
-				"message": "permission denied",
-			})
+		for _, route := range result.Routes {
+			if strings.Contains(route.Route, checkPermissionDto.Route) {
+				c.JSON(http.StatusOK, gin.H{
+					"message": "permission granted",
+				})
+				return
+			}
 		}
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "permission denied",
+		})
 	})
 }
