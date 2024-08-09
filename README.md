@@ -1,4 +1,4 @@
-![Golang](https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white) ![Gin](https://img.shields.io/badge/Gin-008ECF.svg?logo=Gin&logoColor=white) ![Nats.io](https://img.shields.io/badge/NATS.io-27AAE1.svg?logo=natsdotio&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-47A248.svg?logo=MongoDB&logoColor=white)
+![Golang](https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white) ![Gin](https://img.shields.io/badge/Gin-008ECF.svg?logo=Gin&logoColor=white) ![Nats.io](https://img.shields.io/badge/NATS.io-27AAE1.svg?logo=natsdotio&logoColor=white)
 
 # broker
 
@@ -13,7 +13,6 @@ Project initially created at college, which will now have more services using se
 Application is divided as follows:
 
 - `socket-server`: Service responsible for notifying the user in real time.
-- `key-manager`: Service responsible for managing access permission keys to services.
 - `auth-manager`: Service responsible for managing the authentication and authorization.
 - `traffic-exchange`: Service responsible for buy or sell a specific asset made available by a broker.
 - `transaction-service`: Service responsible for carrying out transactions through a purchase order and another sales order.
@@ -37,4 +36,3 @@ Note that communication goes from NATS to the server and from the server to the 
 - [Golang](https://go.dev/)
 - [Gin](https://github.com/gin-gonic/gin)
 - [NATS.io](https://nats.io/)
-- [MongoDB](https://www.mongodb.com/)
